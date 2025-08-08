@@ -1,0 +1,14 @@
+[project]
+name = "steer-llama"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "transformer-lens>=2.16.1",
+    "torch>=2.0.0",
+    "numpy>=1.21.0",
+    "h5py>=3.8.0",
+    "pyyaml>=6.0",
+    "tqdm>=4.64.0",
+]

@@ -6,13 +6,14 @@ at the assistant response divergence point.
 """
 
 import argparse
+from collections import defaultdict
 import json
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
-
+import gc
 import torch
 from transformer_lens import HookedTransformer
 import yaml
@@ -79,8 +80,16 @@ def tokenize_conversations(model: HookedTransformer,
     """Tokenize a conversation. Returns a list of tokens and a list of indices of the assistant response in each conversation."""
     tokens = messages_to_tokens(model, conversations)
 
-    assistant_token_id = model.to_tokens("assistant")[0]
-    assistant_response_idxs = [tokens[i].argmax(dim=1) == assistant_token_id for i in range(len(tokens))]
+    assistant_token_id = 128007
+    # get the index of the assistant token in the tokens
+    assistant_response_idxs = []
+    for i in range(len(tokens)):
+        # Find where assistant token appears in the sequence
+        token_sequence = tokens[i][0]  # Remove batch dimension
+        assistant_position = (token_sequence == assistant_token_id).nonzero(as_tuple=True)[0][-1]
+        # print("assistant_position", assistant_position)
+        assistant_response_idxs.append(assistant_position)
+    # print("assistant_response_idxs", assistant_response_idxs)
     return tokens, assistant_response_idxs
 
 
@@ -98,17 +107,17 @@ def get_activations_for_conversation(model: HookedTransformer,
     #     tokens = tokens[:, :max_length]
     
     # Get activations
-    print(tokens.shape)
-    print("starting to get activations")
+    activations = defaultdict(list)
     with torch.no_grad():
-        logits, cache = model.run_with_cache(tokens)
+        for i in tqdm(range(assistant_response_idx, tokens.shape[1])):
+            logits, cache = model.run_with_cache(tokens[:, :i+1], names_filter=["hook_resid_post"])
     
-    # Extract activations for all layers
-    activations = {}
-    for layer_name in cache.keys():
-        if "hook_resid_post" in layer_name:
-            # Convert to float32 before converting to numpy to avoid BFloat16 issues
-            activations[layer_name] = cache[layer_name].float().cpu().numpy()
+        for layer_name in cache.keys():
+            activations[layer_name].append(cache[layer_name].float().cpu().numpy())
+
+        del logits, cache
+        gc.collect()
+        torch.cuda.empty_cache()
     
     return activations
 
@@ -126,8 +135,7 @@ def save_activations_to_h5(activations_data: List[Dict[str, Any]],
         # Save metadata
         for i, data in enumerate(activations_data):
             sample_group = metadata_group.create_group(f'sample_{i}')
-            sample_group.attrs['chosen_divergence_idx'] = data['chosen_divergence_idx']
-            sample_group.attrs['rejected_divergence_idx'] = data['rejected_divergence_idx']
+            sample_group.attrs['response_start_idx'] = data['response_start_idx'].cpu().item()
             sample_group.attrs['chosen_length'] = data['chosen_length']
             sample_group.attrs['rejected_length'] = data['rejected_length']
             
@@ -182,18 +190,19 @@ def main():
     chosen_tokens, assistant_response_idxs = tokenize_conversations(model, chosen_conversations)
     rejected_tokens, assistant_response_idxs = tokenize_conversations(model, rejected_conversations)
 
-    print(chosen_tokens[0].shape)
-    print(len(chosen_tokens))
+    # print(chosen_tokens[0].shape)
+    # print(len(chosen_tokens))
     
     # Process conversations
     activations_data = []
 
     
-    for i in range(len(chosen_tokens)):
+    for i in tqdm(range(len(chosen_tokens))):
         try:
             chosen = chosen_tokens[i]
             rejected = rejected_tokens[i]
             assistant_response_idx = assistant_response_idxs[i]
+            # print("assistant_response_idx", assistant_response_idx)
             
             # Get activations for chosen conversation
             chosen_activations = get_activations_for_conversation(
@@ -207,8 +216,8 @@ def main():
             
             # Store data
             activations_data.append({
-                'chosen_length': len(chosen),
-                'rejected_length': len(rejected),
+                'chosen_length': chosen.shape[1],
+                'rejected_length': rejected.shape[1],
                 'chosen_activations': chosen_activations,
                 'rejected_activations': rejected_activations,
                 'response_start_idx': assistant_response_idx,

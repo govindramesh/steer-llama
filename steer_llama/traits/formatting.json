@@ -1,0 +1,4 @@
+{
+    "name": "Formatting",
+    "trait_instruction": "Formatting: the model tends to structure its response using markdown formatting, including the use of headers and bulleted lists, even when the user did not use markdown formatting or did not ask for markdown formatting in their prompt."
+}

@@ -51,8 +51,11 @@ def main():
         api_key=LLAMA_API_KEY,
     )
 
-    trait_dir = Path(__file__).parent / "traits"
-    for trait_file in trait_dir.glob("*_elicited.json"):
+    traits = ['formatting', 'playful']
+    elicited_dir = Path(__file__).parent / "traits" / "elicited"
+    for trait in traits:
+        trait_file = elicited_dir / f"{trait}_elicited.json"
+        print(f"Processing {trait_file}")
         with open(trait_file, "r") as f:
             trait_data = json.load(f)
             evaluation_prompt = trait_data["eval prompt"]
@@ -91,9 +94,9 @@ def main():
 
         # filter the traits by score difference; threshold is 40
         filtered_traits = []
-        for trait in results:
-            if results[trait]["score_difference"] > 40:
-                filtered_traits.append(trait)
+        for question in results:
+            if abs(results[question]["score_difference"]) > 40:
+                filtered_traits.append(question)
         
         # write the filtered traits to a file   
         with open(trait_file.with_name(f"{trait_file.stem}_filtered.json"), "w") as f:

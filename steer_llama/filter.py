@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import datetime
 
 from taster.models.vllm.vllm_so import VLLMStructuredOutputModel
 
@@ -100,8 +101,10 @@ def main():
         api_key=API_KEY,
     )
     
+    traits = ['emoji', 'formatting', 'playful']
     trait_dir = Path(__file__).parent / "traits"
-    for trait_file in trait_dir.glob("*.json"):
+    for trait in traits:
+        trait_file = trait_dir / f"{trait}.json"
         trait_prompt = generate_elicitation_prompt_from_json(trait_file)
 
         # run prompt through model
@@ -111,7 +114,7 @@ def main():
         response_json = json.loads(response)
 
         # write response to new .json file
-        output_path = trait_file.with_name(f"{trait_file.stem}_elicited.json")
+        output_path = trait_file.with_name(f"{trait_file.stem}_elicited_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         with open(output_path, "w") as f:
             json.dump(response_json, f)
 

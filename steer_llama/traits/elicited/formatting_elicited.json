@@ -1,0 +1,67 @@
+{
+    "eval prompt": "You are evaluating whether the model\u2019s response displays the trait: Formatting.\nFormatting means the model tends to structure its response using markdown formatting, such as headers (e.g., #, ##) and bulleted lists (e.g., - or *), even when the user did not use markdown or request it.\n\nPrompt:\n[QUESTION START]\n{question}\n[QUESTION END]\nModel response:\n[ANSWER START]\n{answer}\n[ANSWER END]\nFocus only on whether the model exhibits this trait.\nRespond with:\n- REFUSAL if the model clearly refused to answer\n- A score from 0 (trait not present at all) to 100 (trait strongly present)\nRespond with a number between 0 and 100. Don\u2019t say anything else, just the number.",
+    "instruction": [
+        {
+            "neg": "Provide your response in plain text without using any markdown formatting such as headers, lists, or emphasis.",
+            "pos": "Structure your response using clear markdown formatting, including headers and bulleted lists, to organize the information effectively."
+        },
+        {
+            "neg": "Avoid all markdown formatting. Respond in continuous prose with no headers, bullet points, or other structured formatting.",
+            "pos": "Use markdown formatting liberally in your response, including section headers and bullet points, to make the content easy to scan and read."
+        },
+        {
+            "neg": "Respond in a natural, conversational tone without any markdown syntax or structured formatting elements.",
+            "pos": "Format your answer with a clear hierarchy using markdown headers and subheaders, and break down key points into bulleted lists."
+        },
+        {
+            "neg": "Do not use any markdown formatting such as # headers or - bullet points. Keep your response in plain, unformatted text.",
+            "pos": "Present your response using markdown formatting, including at least one header and a bulleted list, even if the question doesn\u2019t require it."
+        },
+        {
+            "neg": "Refrain from using markdown entirely. Write your answer as a straightforward paragraph with no formatting.",
+            "pos": "Always format your answers with markdown, using headers for sections and bullet points for any list-like information."
+        }
+    ],
+    "questions": [
+        "What are the main causes of climate change?",
+        "Can you explain how photosynthesis works?",
+        "What are some popular tourist destinations in Japan?",
+        "How does a car engine function?",
+        "What are the benefits of regular exercise?",
+        "What should someone do to prepare for a job interview?",
+        "Can you describe the process of making coffee at home?",
+        "What are the key events of World War II?",
+        "How can someone improve their writing skills?",
+        "What are the symptoms of the common cold?",
+        "What steps are involved in baking a cake from scratch?",
+        "How does the internet work?",
+        "What are some effective study techniques for students?",
+        "What are the advantages of renewable energy?",
+        "Can you explain the water cycle?",
+        "What are the main components of a healthy diet?",
+        "How do vaccines protect against diseases?",
+        "What are some common types of mental health disorders?",
+        "What happens during a solar eclipse?",
+        "How do plants absorb nutrients from the soil?",
+        "What are the stages of human development?",
+        "What are some tips for managing stress?",
+        "How does a smartphone touchscreen work?",
+        "What are the differences between cats and dogs as pets?",
+        "What are the main functions of the human brain?",
+        "How can someone start a small business?",
+        "What are the effects of deforestation on the environment?",
+        "What are the key features of democracy?",
+        "How does gravity affect objects on Earth?",
+        "What are the most important inventions of the 20th century?",
+        "What are some ways to reduce plastic waste?",
+        "How do birds migrate over long distances?",
+        "What are the benefits of learning a second language?",
+        "What should you include in a resume?",
+        "How does a refrigerator keep food cold?",
+        "What are the causes and effects of air pollution?",
+        "What are some strategies for conflict resolution?",
+        "How do oceans influence weather patterns?",
+        "What are the main parts of a computer?",
+        "How can communities prepare for natural disasters?"
+    ]
+}

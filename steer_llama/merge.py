@@ -1,7 +1,7 @@
 import json
 
-all_results = "/mnt/vast/home/lawrence/steer-llama/steer_llama/traits/emoji_elicited_results.json"
-filtered = "/mnt/vast/home/lawrence/steer-llama/steer_llama/traits/emoji_elicited_filtered.json"
+all_results = "/mnt/vast/home/lawrence/steer-llama/steer_llama/traits/elicited/playful_elicited_results.json"
+filtered = "/mnt/vast/home/lawrence/steer-llama/steer_llama/traits/elicited/playful_elicited_filtered.json"
 
 all_results_json = json.load(open(all_results))
 filtered_json = json.load(open(filtered))

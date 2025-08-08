@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "steer-llama"
+version = "0.1.0"
+description = "Minimal end-to-end pipeline for persona/style vectors"
+
+dependencies = [
+    "taster"
+]
+
+[tool.uv.sources]
+taster = { path = "/mnt/vast/home/lawrence/taster", editable = true} 

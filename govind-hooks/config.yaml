@@ -1,0 +1,26 @@
+# Model configuration
+model:
+  # NOTE: Adjust to Llama-3.3-70B if available in your environment
+  name: meta-llama/Meta-Llama-3-70B-Instruct
+  device: cuda
+  n_devices: 8  # Use all 8 GPUs
+  dtype: bfloat16
+  path: /mnt/vast/share/inf2-training/models/open_source/llama-3.3-70B-Instruct
+
+# Dataset configuration
+dataset:
+  path: /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/emoji_elicited_filtered.json
+  chosen_field: pi_response       # Pi teacher-forced
+  rejected_field: llama_response  # Llama teacher-forced
+  add_system: false
+  system_prompt: ""
+
+# Output configuration
+output:
+  file: /mnt/vast/home/lawrence/steer-llama/emoji_pi_llama_activations.h5
+  compression: gzip
+  compression_opts: 4
+
+# Processing configuration
+processing:
+  save_intermediate: true 

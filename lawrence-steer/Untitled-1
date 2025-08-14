@@ -1,0 +1,9 @@
+curl https://1a2bce7b214e.ngrok-free.app/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3-235b-reasoning",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Hello"}
+    ]
+  }'

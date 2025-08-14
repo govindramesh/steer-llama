@@ -9,7 +9,7 @@ model:
 
 # Dataset configuration
 dataset:
-  path: /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/emoji_elicited_filtered.json
+  path: /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/formatting_elicited_filtered.json
   chosen_field: pi_response       # Pi teacher-forced
   rejected_field: llama_response  # Llama teacher-forced
   add_system: false
@@ -17,10 +17,10 @@ dataset:
 
 # Output configuration
 output:
-  file: /mnt/vast/home/lawrence/steer-llama/emoji_pi_llama_activations.h5
+  file: /mnt/vast/home/lawrence/steer-llama/formatting_pi_llama_activations.h5
   compression: gzip
   compression_opts: 4
 
 # Processing configuration
 processing:
-  save_intermediate: true 
+  save_intermediate: false

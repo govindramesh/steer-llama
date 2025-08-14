@@ -3,6 +3,8 @@
 Script to extract activations from HookedTransformer for DPO dataset pairs.
 Processes single-turn chosen/rejected conversation pairs and stores activations 
 at the assistant response divergence point.
+
+uv run process_dpo_activations.py --config config.yaml
 """
 
 import argparse

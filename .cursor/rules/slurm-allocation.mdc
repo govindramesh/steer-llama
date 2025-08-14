@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Use srun --gres=gpu:8 --pty bash to allocate 8 GPUs.

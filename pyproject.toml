@@ -16,7 +16,17 @@ dependencies = [
     "h5py>=3.8.0",
     "pyyaml>=6.0",
     "tqdm>=4.64.0",
+    "emoji>=2.10.1",
 ]
 
 [tool.uv.sources]
-taster = { path = "/mnt/vast/home/lawrence/taster", editable = true} 
+taster = { path = "/mnt/vast/home/lawrence/taster", editable = true}
+
+[tool.hatch.build.targets.wheel]
+# Since this is a script-oriented repo without a top-level package dir, include Python scripts directly
+include = [
+    "*.py",
+    "govind-hooks/*.py",
+    "lawrence-steer/*.py",
+    "lawrence-generation/*.py",
+]

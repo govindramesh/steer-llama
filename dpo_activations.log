@@ -552,3 +552,131 @@ TypeError: can't convert cuda:2 device type tensor to numpy. Use Tensor.cpu() to
 2025-08-11 22:45:10,235 - INFO - Loading model: meta-llama/Meta-Llama-3-70B-Instruct
 2025-08-11 22:45:43,618 - WARNING - With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
 2025-08-11 22:47:03,481 - WARNING - You are not using LayerNorm, so the writing weights can't be centered! Skipping
+2025-08-11 22:52:36,678 - INFO - Loading dataset from /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/emoji_elicited_filtered.json
+2025-08-11 22:52:36,685 - INFO - Loaded 16 chosen and 16 rejected conversations from /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/emoji_elicited_filtered.json using chosen='pi_response', rejected='llama_response'.
+2025-08-11 22:52:36,685 - INFO - Loaded 16 chosen conversations and 16 rejected conversations
+2025-08-12 21:48:44,770 - INFO - Loading configuration from config.yaml
+2025-08-12 21:49:02,283 - INFO - Loading configuration from govind-hooks/config.yaml
+2025-08-12 21:49:02,285 - INFO - Loading model: meta-llama/Meta-Llama-3-70B-Instruct
+2025-08-12 21:49:28,156 - WARNING - With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+2025-08-12 21:51:13,987 - WARNING - You are not using LayerNorm, so the writing weights can't be centered! Skipping
+2025-08-12 21:56:07,006 - INFO - Loading dataset from /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/markdown_elicited_filtered.json
+2025-08-12 22:11:39,158 - INFO - Loading configuration from govind-hooks/config.yaml
+2025-08-12 22:11:39,160 - INFO - Loading model: meta-llama/Meta-Llama-3-70B-Instruct
+2025-08-12 22:11:56,745 - WARNING - With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+2025-08-12 22:12:29,581 - WARNING - You are not using LayerNorm, so the writing weights can't be centered! Skipping
+2025-08-12 22:15:37,226 - INFO - Loading dataset from /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/formatted_elicited_filtered.json
+2025-08-12 22:17:25,268 - INFO - Loading configuration from govind-hooks/config.yaml
+2025-08-12 22:17:25,270 - INFO - Loading model: meta-llama/Meta-Llama-3-70B-Instruct
+2025-08-12 22:17:42,874 - WARNING - With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+2025-08-12 22:18:15,526 - WARNING - You are not using LayerNorm, so the writing weights can't be centered! Skipping
+2025-08-12 22:21:08,127 - INFO - Loading dataset from /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/formatting_elicited_filtered.json
+2025-08-12 22:21:08,133 - INFO - Loaded 15 chosen and 15 rejected conversations from /mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/formatting_elicited_filtered.json using chosen='pi_response', rejected='llama_response'.
+2025-08-12 22:21:08,133 - INFO - Loaded 15 chosen conversations and 15 rejected conversations
+2025-08-12 22:21:10,852 - ERROR - Error processing conversation 0: 'NoneType' object is not subscriptable
+2025-08-12 22:21:10,854 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:12,511 - ERROR - Error processing conversation 1: 'NoneType' object is not subscriptable
+2025-08-12 22:21:12,511 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:13,678 - ERROR - Error processing conversation 2: 'NoneType' object is not subscriptable
+2025-08-12 22:21:13,678 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:14,752 - ERROR - Error processing conversation 3: 'NoneType' object is not subscriptable
+2025-08-12 22:21:14,753 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:16,378 - ERROR - Error processing conversation 4: 'NoneType' object is not subscriptable
+2025-08-12 22:21:16,379 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:17,618 - ERROR - Error processing conversation 5: 'NoneType' object is not subscriptable
+2025-08-12 22:21:17,619 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:18,653 - ERROR - Error processing conversation 6: 'NoneType' object is not subscriptable
+2025-08-12 22:21:18,653 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:20,140 - ERROR - Error processing conversation 7: 'NoneType' object is not subscriptable
+2025-08-12 22:21:20,141 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:21,275 - ERROR - Error processing conversation 8: 'NoneType' object is not subscriptable
+2025-08-12 22:21:21,275 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:22,411 - ERROR - Error processing conversation 9: 'NoneType' object is not subscriptable
+2025-08-12 22:21:22,411 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:23,599 - ERROR - Error processing conversation 10: 'NoneType' object is not subscriptable
+2025-08-12 22:21:23,600 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:25,295 - ERROR - Error processing conversation 11: 'NoneType' object is not subscriptable
+2025-08-12 22:21:25,295 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:26,234 - ERROR - Error processing conversation 12: 'NoneType' object is not subscriptable
+2025-08-12 22:21:26,235 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:27,214 - ERROR - Error processing conversation 13: 'NoneType' object is not subscriptable
+2025-08-12 22:21:27,214 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:28,695 - ERROR - Error processing conversation 14: 'NoneType' object is not subscriptable
+2025-08-12 22:21:28,696 - ERROR - Traceback: Traceback (most recent call last):
+  File "/mnt/vast/home/lawrence/steer-llama/govind-hooks/process_dpo_activations.py", line 355, in main
+    if config['processing']['save_intermediate'] and (i + 1) % 10 == 0:
+       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2025-08-12 22:21:28,696 - INFO - Saving final results to /mnt/vast/home/lawrence/steer-llama/formatting_pi_llama_activations.h5
+2025-08-12 22:33:00,428 - INFO - Processing complete. Processed 15 conversations.

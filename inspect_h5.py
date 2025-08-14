@@ -2,6 +2,8 @@
 """
 Script to inspect HDF5 files containing activations data.
 Shows structure, number of items, and tensor shapes.
+
+uv run inspect_h5.py steer-llama/formatting_pi_llama_activations.h5
 """
 
 import argparse
@@ -127,18 +129,6 @@ def inspect_h5_file(file_path: str, list_all: bool, sample_idx: int, max_layers:
 
                 print(f"  Layers found in first sample: {len(layer_names)}")
                 print(f"  Layer names (first 5): {layer_names[:5]}{'...' if len(layer_names) > 5 else ''}")
-
-                # Check shapes consistency for a few layers across a few samples
-                print("\n  Shape consistency quick check:")
-                for layer_name in layer_names[:3]:  # Check first 3 layers
-                    shapes = []
-                    for sample_name in sorted(chosen_samples)[:5]:  # Check first 5 samples
-                        if sample_name in activations_group and layer_name in activations_group[sample_name]:
-                            shapes.append(activations_group[sample_name][layer_name].shape)
-                    if shapes:
-                        consistent = all(s == shapes[0] for s in shapes)
-                        print(f"    {layer_name}: {shapes[0]} {'✓' if consistent else '✗ (inconsistent)'}")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Inspect HDF5 activations file")

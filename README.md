@@ -1,115 +1,56 @@
-# DPO Activations Extractor
+# SteerPi
 
-This script extracts activations from a HookedTransformer model for DPO (Direct Preference Optimization) dataset pairs. It processes chosen/rejected conversation pairs and stores activations at the point where conversations diverge.
+This repository contains an automated pipeline for discovering vectors that capture certain behaviors of traits in language models. We used Llama-3.3-70B-Instruct.
 
-## Features
+This technique was inspired from [Persona Vectors](https://arxiv.org/pdf/2507.21509) by Chen et al.
 
-- Loads DPO dataset in ChatML format
-- Finds divergence points between chosen and rejected conversations
-- Extracts token-by-token activations from all transformer layers
-- Saves activations to HDF5 format with compression
-- Supports intermediate saving for long-running processes
-- Comprehensive logging and error handling
+## Method
 
-## Installation
+### Automated Pipeline
 
-1. Install dependencies:
-```bash
-uv sync
-```
+1. Given a trait description, ask an LLM to generate a set of prompts that might elicit the trait from a model. The LLM is also asked to generate an evaluation prompt for Judge LLM.
+2. Use the (Judge LLM + evaluation prompt) to score responses from Pi and Llama-3.3-70B-Instruct.
+3. Prompts whose corresponding pair of responses were judged to not have large difference in trait elicitation are removed
+$${\text{prompt} : \text{Judge}(\text{LLM}_1(\text{prompt}), \text{LLM}_2(\text{prompt})) \geq \text{threshold}}$$
 
-2. Update the configuration file `config.yaml` with your dataset path and model settings.
+### Activation Collection via Teacher Forcing in Llama
 
-## Usage
+1. We use the TransformerLens library to hook Llama.
+2. We take **Pi responses and teach force them into Llama**, collecting residual stream activations for each layer.
+3. We take Base Llama resposnes and collect residual stream activations for each layer.
 
-### Basic Usage
-```bash
-python process_dpo_activations.py
-```
+### Computing the Persona Vector
 
-### With Custom Config
-```bash
-python process_dpo_activations.py --config my_config.yaml
-```
+With the activations collected, we devised a few ways to comptue the presona vector.
 
-### With Different Log Level
-```bash
-python process_dpo_activations.py --log-level DEBUG
-```
+* For the markdown persona vector, we formed per-layer steering vectors by averaging across non-alphabet response tokens. We also tried averaging across markdown response tokens.
+* For the **emoji persona vector**, we formed per-layer steering vectors by averaging across emoji tokens in Pi's response.
+  * Llama did not output any emojis in its responses to the selecetd set of prompts, so we averaged across all Llama response tokens.
 
-## Configuration
+## Experiments
 
-Edit `config.yaml` to customize:
+With the emoji vector, we generated this graph showing steering effectiveness (judged by our LLM judge):
 
-- **Model settings**: Model name, device, dtype
-- **Dataset path**: Path to your DPO dataset JSONL file
-- **Output settings**: Output file path, compression options
-- **Processing settings**: Batch size, max sequence length
+Steering Effectivenss Across Layers:
+![Steering Effectivenss Across Layers](/results/emoji/steering_results.png)
 
-### Example Dataset Format
+Coherence Across Layers
+![Coherence Across Layers](/results/emoji/coherence_by_layer_by_alpha.png)
 
-Your DPO dataset should be in JSONL format with each line containing a single-turn conversation pair:
-```json
-{
-  "chosen": [
-    {"role": "user", "content": "What is the capital of France?"}, 
-    {"role": "assistant", "content": "Paris is the capital of France."}
-  ], 
-  "rejected": [
-    {"role": "user", "content": "What is the capital of France?"}, 
-    {"role": "assistant", "content": "I don't know."}
-  ]
-}
-```
+### Example Steering:
 
-**Note**: Each sample should contain exactly one user message and one assistant response. The user messages should be identical between chosen and rejected pairs, with only the assistant responses differing.
+Prompt: "It's so sunny today, I think I need some sunscreen!"
 
-## Output Format
+> **Llama**: Don't forget to apply that sunscreen before heading out. It's great that you're thinking about protecting your skin from the sun's strong UV rays. What's your plan for the day? Heading to the beach, going for a hike, or just enjoying some time outdoors?
 
-The script creates an HDF5 file with the following structure:
+> **Steered-Llama**: That's a great idea! ☀️ Protecting your skin from the sun's harmful rays is super important! 🌞 What kind of sunscreen are you looking for? Do you have a favorite brand or SPF level? 🤔 I can give you some tips on how to choose the right one for you! 😊
 
-```
-activations_output.h5/
-├── metadata/
-│   ├── sample_0/
-│   │   ├── chosen_divergence_idx
-│   │   ├── rejected_divergence_idx
-│   │   ├── chosen_length
-│   │   └── rejected_length
-│   └── ...
-└── activations/
-    ├── sample_0_chosen/
-    │   ├── blocks.0.hook_resid_post
-    │   ├── blocks.1.hook_resid_post
-    │   └── ...
-    ├── sample_0_rejected/
-    │   ├── blocks.0.hook_resid_post
-    │   ├── blocks.1.hook_resid_post
-    │   └── ...
-    └── ...
-```
+> **Pi**: ☀️🌞 Sounds like a bright and beautiful day! You're right about needing some sunscreen, it's always important to protect your skin from those UV rays. Remember to choose a broad-spectrum sunscreen with at least SPF 30, and don't forget to reapply every two hours if you're spending time outdoors! 
 
-## Loading Activations
+## Reproducability
 
-```python
-import h5py
+`lawrence-generation` contains a series of Python script which taken in a simple JSON file containing trait name and trait description and outputs the list of prompts and an evaluation prompt. Taken directly from Chen et al.
 
-with h5py.File('activations_output.h5', 'r') as f:
-    # Get metadata for sample 0
-    metadata = f['metadata/sample_0']
-    divergence_idx = metadata.attrs['chosen_divergence_idx']
-    
-    # Get activations for chosen conversation
-    chosen_activations = f['activations/sample_0_chosen']
-    layer_0_activations = chosen_activations['blocks.0.hook_resid_post'][:]
-```
+`govind-hooks` contains a Python script to collect activations using HookedTransformer.
 
-## Logging
-
-The script creates a log file `dpo_activations.log` with detailed information about the processing progress and any errors encountered.
-
-## Error Handling
-
-- Invalid conversations are skipped with error logging
-- Memory issues are handled gracefully
-- Intermediate saves prevent data loss on long runs
+`lawrence-steer` contains a .ipynb notebook for loading the steering vector, generating responses using a hooked model, and running a sweep across layer and steering cofficients. The plot generated has trait expression score (0-100) from the LLM judge.

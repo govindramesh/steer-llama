@@ -2,6 +2,12 @@
 """
 Extract steering vectors from Pi vs Llama activations.
 Computes mean difference vectors across samples and tokens for each layer.
+
+Example usage:
+python extract_steering_vectors.py \
+    --h5-path /mnt/vast/home/lawrence/steer-llama/outputs/activations/activations_emoji.h5 \
+    --output /mnt/vast/home/lawrence/steer-llama/outputs/steering_vectors/steering_vectors_emoji.pt \
+    --token-strategy all
 """
 
 import argparse
@@ -155,17 +161,17 @@ def _build_emoji_mask_for_response(
 def _find_markdown_marker_char_mask(text: str) -> List[bool]:
     """Return a per-character boolean mask for simple markdown markers in the text.
     Markers considered:
-      - '**' (both asterisks in each pair)
+      - '**' (both asterisks as a unit)
       - '*' (single asterisk not part of '**')
       - '_' (underscore)
       - '#' (hash; each occurrence counts)
-      - numbered list markers: one or more digits followed by a period (mark all digits and the period)
+      - numbered list markers: digits followed by period or parenthesis
     We match anywhere in the text (not restricted to line starts) and do not special-case code blocks.
     """
     n = len(text)
     char_mask = [False] * n
 
-    # 1) Mark all '**' pairs first
+    # 1) Mark all '**' pairs first (as single units)
     for m in re.finditer(r"\*\*", text):
         for i in range(m.start(), m.end()):
             char_mask[i] = True
@@ -187,11 +193,27 @@ def _find_markdown_marker_char_mask(text: str) -> List[bool]:
         for i in range(m.start(), m.end()):
             char_mask[i] = True
 
-    # 5) Numbered list markers: digits followed by period. Mark digits and period.
-    for m in re.finditer(r"\d+\.", text):
+    # 5) Numbered list markers: digits followed by period or parenthesis
+    for m in re.finditer(r"\d+[.)]", text):
         for i in range(m.start(), m.end()):
             char_mask[i] = True
 
+    return char_mask
+
+
+def _find_formatting_char_mask(text: str) -> List[bool]:
+    """Return a per-character boolean mask for formatting/special characters.
+    Includes: spaces, newlines, punctuation, symbols, digits, etc.
+    Excludes: letters only.
+    """
+    n = len(text)
+    char_mask = [False] * n
+    
+    for i, char in enumerate(text):
+        # Mark character if it's not a letter (includes spaces, punctuation, digits, symbols)
+        if not char.isalpha():
+            char_mask[i] = True
+    
     return char_mask
 
 
@@ -217,7 +239,7 @@ def _build_markdown_mask_for_response(
         ids = tokenized["input_ids"]
         for tok_id in ids:
             piece = tokenizer.decode([tok_id], skip_special_tokens=False)
-            token_mask.append(bool(re.search(r"\*|_|#|\d+\.\s*", piece)))
+            token_mask.append(bool(re.search(r"\*|_|#|\d+[.)]", piece)))
     else:
         for (start, end) in offsets:
             if start is None or end is None or end <= start:
@@ -225,6 +247,40 @@ def _build_markdown_mask_for_response(
                 continue
             has_marker = any(char_mask[start:end])
             token_mask.append(bool(has_marker))
+
+    return torch.tensor(token_mask, dtype=torch.bool)
+
+
+def _build_formatting_mask_for_response(
+    tokenizer: AutoTokenizer,
+    response_text: str,
+) -> torch.Tensor:
+    """Build a boolean mask over response tokens that contain any formatting/special characters.
+    Uses offsets mapping to map character positions to tokens.
+    """
+    tokenized = tokenizer(
+        response_text,
+        add_special_tokens=False,
+        return_offsets_mapping=True,
+        return_tensors=None,
+    )
+    offsets = tokenized.get("offset_mapping")
+    char_mask = _find_formatting_char_mask(response_text)
+
+    token_mask: List[bool] = []
+    if offsets is None:
+        # Fallback: mark token if its decoded piece contains any non-letter characters
+        ids = tokenized["input_ids"]
+        for tok_id in ids:
+            piece = tokenizer.decode([tok_id], skip_special_tokens=False)
+            token_mask.append(any(not c.isalpha() for c in piece))
+    else:
+        for (start, end) in offsets:
+            if start is None or end is None or end <= start:
+                token_mask.append(False)
+                continue
+            has_formatting = any(char_mask[start:end])
+            token_mask.append(bool(has_formatting))
 
     return torch.tensor(token_mask, dtype=torch.bool)
 
@@ -252,6 +308,7 @@ def compute_steering_vectors(
     token_strategy: str = "all",
     emoji_masks: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
     markdown_masks: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
+    formatting_masks: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
 ) -> Dict[str, torch.Tensor]:
     """
     Compute steering vectors as Pi_mean - Llama_mean for each layer.
@@ -260,9 +317,10 @@ def compute_steering_vectors(
         pi_activations: Dict mapping layer -> List[tensor] (each tensor is (1, seq_len, hidden_dim))
         llama_activations: Same format
         sample_weights: Optional weights for each sample (defaults to uniform)
-        token_strategy: "all" or "emoji" or "markdown"
+        token_strategy: "all" or "emoji" or "markdown" or "formatting"
         emoji_masks: When token_strategy == "emoji", per-sample (pi_mask, llama_mask)
         markdown_masks: When token_strategy == "markdown", per-sample (pi_mask, llama_mask)
+        formatting_masks: When token_strategy == "formatting", per-sample (pi_mask, llama_mask)
     
     Returns:
         steering_vectors: Dict mapping layer -> (hidden_dim,) tensor
@@ -376,6 +434,46 @@ def compute_steering_vectors(
                 llama_mean = llama_mean / included_weight_sum
             else:
                 print(f"[warn] No samples contained markdown markers for layer {layer_name}. Vector will be zeros.")
+        elif token_strategy == "formatting":
+            assert formatting_masks is not None, "formatting_masks must be provided when token_strategy='formatting'"
+            included_weight_sum = 0.0
+            for i, weight in enumerate(sample_weights_tensor):
+                pi_seq = pi_tensors[i].squeeze(0)
+                llama_seq = llama_tensors[i].squeeze(0)
+                pi_mask, llama_mask = formatting_masks[i]
+
+                # Adjust mask lengths to match activation lengths
+                if pi_mask.numel() != pi_seq.shape[0]:
+                    if pi_mask.numel() < pi_seq.shape[0]:
+                        pad = torch.zeros(pi_seq.shape[0] - pi_mask.numel(), dtype=torch.bool)
+                        pi_mask = torch.cat([pi_mask, pad], dim=0)
+                    else:
+                        pi_mask = pi_mask[: pi_seq.shape[0]]
+                if llama_mask.numel() != llama_seq.shape[0]:
+                    if llama_mask.numel() < llama_seq.shape[0]:
+                        pad = torch.zeros(llama_seq.shape[0] - llama_mask.numel(), dtype=torch.bool)
+                        llama_mask = torch.cat([llama_mask, pad], dim=0)
+                    else:
+                        llama_mask = llama_mask[: llama_seq.shape[0]]
+
+                # Include sample if Llama has any formatting characters
+                if not llama_mask.any().item():
+                    continue
+
+                # Pi: average over all response tokens
+                pi_sample_mean = pi_seq.mean(dim=0)
+                # Llama: average only over formatting character tokens
+                llama_sample_mean = llama_seq[llama_mask].mean(dim=0)
+
+                pi_mean += weight * pi_sample_mean
+                llama_mean += weight * llama_sample_mean
+                included_weight_sum += weight.item()
+
+            if included_weight_sum > 0:
+                pi_mean = pi_mean / included_weight_sum
+                llama_mean = llama_mean / included_weight_sum
+            else:
+                print(f"[warn] No samples contained formatting characters for layer {layer_name}. Vector will be zeros.")
         else:
             raise NotImplementedError(f"Token strategy '{token_strategy}' not implemented")
         
@@ -398,7 +496,7 @@ def main():
     parser.add_argument("--output", required=True, help="Output path for steering vectors")
     parser.add_argument("--exclude-samples", nargs="*", type=int, default=[], 
                        help="Sample indices to exclude (test set)")
-    parser.add_argument("--token-strategy", default="all", choices=["all", "emoji", "markdown"], 
+    parser.add_argument("--token-strategy", default="all", choices=["all", "emoji", "markdown", "formatting"], 
                        help="How to aggregate across tokens")
     parser.add_argument(
         "--dataset-json",
@@ -426,9 +524,10 @@ def main():
 
     emoji_masks: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None
     markdown_masks: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None
+    formatting_masks: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None
     tokenizer: Optional[AutoTokenizer] = None
 
-    if args.token_strategy in ("emoji", "markdown"):
+    if args.token_strategy in ("emoji", "markdown", "formatting"):
         tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_path)
         pairs = _load_dataset_pairs(args.dataset_json)
 
@@ -483,6 +582,20 @@ def main():
             llama_markdown_tokens = [tok for j, tok in enumerate(llama_tokens) if j < len(llama_mask) and llama_mask[j]]
             print(f"  Llama markdown tokens ({len(llama_markdown_tokens)} of {len(llama_tokens)}): {llama_markdown_tokens}")
 
+    if args.token_strategy == "formatting":
+        print("Building formatting token masks using tokenizer...")
+        formatting_masks = []
+        for idx in training_samples:
+            prompt_text, pi_text, llama_text = pairs[idx]
+            pi_mask = _build_formatting_mask_for_response(tokenizer, pi_text)
+            llama_mask = _build_formatting_mask_for_response(tokenizer, llama_text)
+            formatting_masks.append((pi_mask, llama_mask))
+        # Quick sanity stats
+        pi_counts = [int(m[0].sum().item()) for m in formatting_masks]
+        llama_counts = [int(m[1].sum().item()) for m in formatting_masks]
+        print(f"Formatting token counts per sample (pi): {pi_counts}")
+        print(f"Formatting token counts per sample (llama): {llama_counts}")
+
     # Compute steering vectors
     print("Computing steering vectors...")
     steering_vectors = compute_steering_vectors(
@@ -491,6 +604,7 @@ def main():
         token_strategy=args.token_strategy,
         emoji_masks=emoji_masks,
         markdown_masks=markdown_masks,
+        formatting_masks=formatting_masks,
     )
 
     # Print some statistics

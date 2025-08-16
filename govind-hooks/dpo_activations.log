@@ -1,8 +1,0 @@
-2025-08-08 23:17:12,557 - INFO - Loading configuration from config.yaml
-2025-08-08 23:17:12,559 - INFO - Loading model: meta-llama/Meta-Llama-3-70B-Instruct
-2025-08-08 23:18:07,335 - INFO - Loading configuration from config.yaml
-2025-08-08 23:18:07,336 - INFO - Loading model: meta-llama/Meta-Llama-3-70B-Instruct
-2025-08-08 23:18:07,336 - INFO - Loading model on CPU first, then moving to GPUs...
-2025-08-08 23:18:11,606 - WARNING - With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
-2025-08-08 23:18:39,797 - WARNING - You are not using LayerNorm, so the writing weights can't be centered! Skipping
-2025-08-08 23:22:50,294 - INFO - Moving model to 8 GPUs...

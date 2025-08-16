@@ -37,7 +37,9 @@ Steering Effectivenss Across Layers:
 Coherence Across Layers
 ![Coherence Across Layers](/results/emoji/coherence_by_layer_by_alpha.png)
 
-### Example Steering:
+### Example Success at Steering with the Persona Vector:
+
+* Layer 54, alpha 6.0
 
 Prompt: "It's so sunny today, I think I need some sunscreen!"
 
@@ -54,3 +56,8 @@ Prompt: "It's so sunny today, I think I need some sunscreen!"
 `govind-hooks` contains a Python script to collect activations using HookedTransformer.
 
 `lawrence-steer` contains a .ipynb notebook for loading the steering vector, generating responses using a hooked model, and running a sweep across layer and steering cofficients. The plot generated has trait expression score (0-100) from the LLM judge.
+
+## Results
+
+* The emoji steering vector in `/outputs/EMOJI_VECTOR.pt` works well, as demonstrated above.
+* The markdown steering vector does successfully remove markdown formatting, though it does cause degeneration.

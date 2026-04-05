@@ -51,11 +51,11 @@ Prompt: "It's so sunny today, I think I need some sunscreen!"
 
 ## Reproducability
 
-`lawrence-generation` contains a series of Python script which taken in a simple JSON file containing trait name and trait description and outputs the list of prompts and an evaluation prompt. Taken directly from Chen et al.
+`trait_generation` contains a series of Python script which taken in a simple JSON file containing trait name and trait description and outputs the list of prompts and an evaluation prompt. Taken directly from Chen et al.
 
-`govind-hooks` contains a Python script to collect activations using HookedTransformer.
+`hooks` contains a Python script to collect activations using HookedTransformer.
 
-`lawrence-steer` contains a .ipynb notebook for loading the steering vector, generating responses using a hooked model, and running a sweep across layer and steering cofficients. The plot generated has trait expression score (0-100) from the LLM judge.
+`steer` contains a .ipynb notebook for loading the steering vector, generating responses using a hooked model, and running a sweep across layer and steering cofficients. The plot generated has trait expression score (0-100) from the LLM judge.
 
 ## Results
 

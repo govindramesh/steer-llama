@@ -82,7 +82,7 @@ def generate_steered_response(model, tokenizer, prompt, layer_name,
 
 ### Basic Steering
 ```python
-from lawrence_steer.steer_model import generate_steered_response
+from steer.steer_model import generate_steered_response
 
 # Load model (can use n_devices > 1 safely now)
 model = HookedTransformer.from_pretrained(

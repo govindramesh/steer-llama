@@ -5,8 +5,8 @@ Computes mean difference vectors across samples and tokens for each layer.
 
 Example usage:
 python extract_steering_vectors.py \
-    --h5-path /mnt/vast/home/lawrence/steer-llama/outputs/activations/activations_emoji.h5 \
-    --output /mnt/vast/home/lawrence/steer-llama/outputs/steering_vectors/steering_vectors_emoji.pt \
+    --h5-path outputs/emoji_pi_llama_activations.h5 \
+    --output outputs/steering_vectors_emoji.pt \
     --token-strategy all
 """
 
@@ -22,6 +22,10 @@ import re
 # Added for emoji token strategy
 from transformers import AutoTokenizer
 import emoji
+
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_DATASET_JSON = REPO_ROOT / "trait_generation" / "traits" / "elicited" / "emoji_elicited_filtered.json"
 
 
 def discover_sample_indices(h5_path: str) -> List[int]:
@@ -500,7 +504,7 @@ def main():
                        help="How to aggregate across tokens")
     parser.add_argument(
         "--dataset-json",
-        default="/mnt/vast/home/lawrence/steer-llama/lawrence-generation/traits/elicited/emoji_elicited_filtered.json",
+        default=str(DEFAULT_DATASET_JSON),
         help="Path to the dataset JSON used to build token masks for emoji/markdown strategies",
     )
     parser.add_argument(

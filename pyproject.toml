@@ -26,7 +26,7 @@ taster = { path = "/mnt/vast/home/lawrence/taster", editable = true}
 # Since this is a script-oriented repo without a top-level package dir, include Python scripts directly
 include = [
     "*.py",
-    "govind-hooks/*.py",
-    "lawrence-steer/*.py",
-    "lawrence-generation/*.py",
+    "hooks/*.py",
+    "steer/*.py",
+    "trait_generation/*.py",
 ]
